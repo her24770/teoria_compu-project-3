@@ -1,0 +1,48 @@
+---
+# Ejemplo de prueba del simulador (no es una de las MT de la entrega).
+# Reconoce cadenas sobre {a, b} cuyo primer símbolo es igual al último.
+# Usa la caché: guarda el primer símbolo y lo compara al llegar al final.
+#   0: lee el primer símbolo y lo guarda en caché
+#   1: avanza hasta el blank del final
+#   2: compara el último símbolo con la caché
+#   3: estado de aceptación
+q_states:
+  q_list: ['0', '1', '2', '3']
+  initial: '0'
+  final: '3'
+alphabet: [a, b]
+tape_alphabet:
+- a
+- b
+-
+delta:
+# Guardar el primer símbolo en caché
+- params: {initial_state: '0', mem_cache_value: , tape_input: a}
+  output: {final_state: '1', mem_cache_value: a, tape_output: a, tape_displacement: R}
+- params: {initial_state: '0', mem_cache_value: , tape_input: b}
+  output: {final_state: '1', mem_cache_value: b, tape_output: b, tape_displacement: R}
+# Avanzar hasta el final conservando la caché
+- params: {initial_state: '1', mem_cache_value: a, tape_input: a}
+  output: {final_state: '1', mem_cache_value: a, tape_output: a, tape_displacement: R}
+- params: {initial_state: '1', mem_cache_value: a, tape_input: b}
+  output: {final_state: '1', mem_cache_value: a, tape_output: b, tape_displacement: R}
+- params: {initial_state: '1', mem_cache_value: b, tape_input: a}
+  output: {final_state: '1', mem_cache_value: b, tape_output: a, tape_displacement: R}
+- params: {initial_state: '1', mem_cache_value: b, tape_input: b}
+  output: {final_state: '1', mem_cache_value: b, tape_output: b, tape_displacement: R}
+# Al encontrar blank, regresar una posición
+- params: {initial_state: '1', mem_cache_value: a, tape_input: }
+  output: {final_state: '2', mem_cache_value: a, tape_output: , tape_displacement: L}
+- params: {initial_state: '1', mem_cache_value: b, tape_input: }
+  output: {final_state: '2', mem_cache_value: b, tape_output: , tape_displacement: L}
+# Comparar el último símbolo con la caché
+- params: {initial_state: '2', mem_cache_value: a, tape_input: a}
+  output: {final_state: '3', mem_cache_value: , tape_output: a, tape_displacement: S}
+- params: {initial_state: '2', mem_cache_value: b, tape_input: b}
+  output: {final_state: '3', mem_cache_value: , tape_output: b, tape_displacement: S}
+simulation_strings:
+- abbaba
+- babab
+- abbab
+- a
+- ''
