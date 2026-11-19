@@ -45,17 +45,17 @@ la cinta final nunca queda completamente en blanco.
 
 ## Casos previstos para la demostración
 
-Las cuatro entradas tienen longitud 5.
+Las cuatro entradas tienen longitud mayor o igual a 5 y todas se modifican.
 
 | Entrada | Salida esperada | Caso |
 | --- | --- | --- |
 | `babab` | `aabbb` | Símbolos alternados. |
 | `bbaaa` | `aaabb` | Todos los símbolos están en el orden opuesto. |
-| `aabbb` | `aabbb` | Cadena ya ordenada. |
-| `bbbbb` | `bbbbb` | Un solo tipo de símbolo. |
+| `abbaba` | `aaabbb` | Varias inversiones separadas. |
+| `bbbaab` | `aabbbb` | Las `a` deben cruzar tres `b`. |
 
-También se verificarán cadenas cortas como `a`, `b`, `ab` y `ba`, y cadenas
-de solo `a`. La cadena vacía queda fuera del dominio definido.
+También se verificaron cadenas ya ordenadas (`aabbb`), de un solo símbolo
+(`bbbbb`) y cortas como `a`, `b`, `ab` y `ba`. La cadena vacía queda fuera del dominio definido.
 
 ## Diseño formal
 
