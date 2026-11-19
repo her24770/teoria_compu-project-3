@@ -9,15 +9,13 @@ las descripciones instantáneas hasta que la máquina acepta o rechaza.
 
 ## Video
 
-**Enlace:** _pendiente_ <!-- pegar aquí el link de YouTube (no listado) -->
+**Enlace: https://youtu.be/8H94gJyUJ2Y**
 
 ## Integrantes
 
-| Nombre | Carné | Parte |
-| --- | --- | --- |
-| | | Simulador y arquitectura |
-| | | MT reconocedora |
-| | | MT alteradora |
+- Josué Hernández - carné 24770 (her24770).
+- José Sanchez - carné 24092 (josesan28).
+- Juan Daniel Ordoñez - carné 24979 (ord24979).
 
 ---
 
