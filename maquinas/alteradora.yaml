@@ -1,0 +1,79 @@
+---
+# Ordena cadenas no vacías sobre {a, b} mediante intercambios vecinos ba -> ab.
+# Conserva la longitud y la cantidad de cada símbolo. Diseño: docs/alteradora.md.
+# null representa el blank, tanto en la cinta como en la caché.
+q_states:
+  q_list: [inicio, limpia, cambios, intercambiar, avanzar, regresar, aceptar]
+  initial: inicio
+  final: aceptar
+
+alphabet: [a, b]
+tape_alphabet: [a, b, null]
+
+delta:
+  # Reglas 1-2: guardar el primer símbolo y comenzar un recorrido sin cambios.
+  # No hay transición para una entrada vacía.
+  - params: {initial_state: inicio, mem_cache_value: null, tape_input: a}
+    output: {final_state: limpia, mem_cache_value: a, tape_output: a, tape_displacement: R}
+  - params: {initial_state: inicio, mem_cache_value: null, tape_input: b}
+    output: {final_state: limpia, mem_cache_value: b, tape_output: b, tape_displacement: R}
+
+  # Reglas 3-5: comparar vecinos sin intercambiar, recordar el símbolo leído.
+  - params: {initial_state: limpia, mem_cache_value: a, tape_input: a}
+    output: {final_state: limpia, mem_cache_value: a, tape_output: a, tape_displacement: R}
+  - params: {initial_state: limpia, mem_cache_value: a, tape_input: b}
+    output: {final_state: limpia, mem_cache_value: b, tape_output: b, tape_displacement: R}
+  - params: {initial_state: limpia, mem_cache_value: b, tape_input: b}
+    output: {final_state: limpia, mem_cache_value: b, tape_output: b, tape_displacement: R}
+
+  # Regla 6: detectar ba, escribir b a la derecha y llevar a hacia la izquierda.
+  - params: {initial_state: limpia, mem_cache_value: b, tape_input: a}
+    output: {final_state: intercambiar, mem_cache_value: a, tape_output: b, tape_displacement: L}
+
+  # Reglas 7-8: un recorrido completo sin cambios significa que la cinta está ordenada.
+  - params: {initial_state: limpia, mem_cache_value: a, tape_input: null}
+    output: {final_state: aceptar, mem_cache_value: null, tape_output: null, tape_displacement: S}
+  - params: {initial_state: limpia, mem_cache_value: b, tape_input: null}
+    output: {final_state: aceptar, mem_cache_value: null, tape_output: null, tape_displacement: S}
+
+  # Reglas 9-11: continuar comparando, conservando el registro de que hubo cambios.
+  - params: {initial_state: cambios, mem_cache_value: a, tape_input: a}
+    output: {final_state: cambios, mem_cache_value: a, tape_output: a, tape_displacement: R}
+  - params: {initial_state: cambios, mem_cache_value: a, tape_input: b}
+    output: {final_state: cambios, mem_cache_value: b, tape_output: b, tape_displacement: R}
+  - params: {initial_state: cambios, mem_cache_value: b, tape_input: b}
+    output: {final_state: cambios, mem_cache_value: b, tape_output: b, tape_displacement: R}
+
+  # Regla 12: iniciar otro intercambio ba -> ab durante el mismo recorrido.
+  - params: {initial_state: cambios, mem_cache_value: b, tape_input: a}
+    output: {final_state: intercambiar, mem_cache_value: a, tape_output: b, tape_displacement: L}
+
+  # Reglas 13-14: al final de un recorrido con cambios, volver al inicio.
+  - params: {initial_state: cambios, mem_cache_value: a, tape_input: null}
+    output: {final_state: regresar, mem_cache_value: null, tape_output: null, tape_displacement: L}
+  - params: {initial_state: cambios, mem_cache_value: b, tape_input: null}
+    output: {final_state: regresar, mem_cache_value: null, tape_output: null, tape_displacement: L}
+
+  # Regla 15: escribir la a guardada en la celda izquierda para completar el intercambio.
+  - params: {initial_state: intercambiar, mem_cache_value: a, tape_input: b}
+    output: {final_state: avanzar, mem_cache_value: b, tape_output: a, tape_displacement: R}
+
+  # Regla 16: pasar por la b derecha y continuar con el siguiente par de vecinos.
+  - params: {initial_state: avanzar, mem_cache_value: b, tape_input: b}
+    output: {final_state: cambios, mem_cache_value: b, tape_output: b, tape_displacement: R}
+
+  # Reglas 17-18: regresar sin modificar la cadena.
+  - params: {initial_state: regresar, mem_cache_value: null, tape_input: a}
+    output: {final_state: regresar, mem_cache_value: null, tape_output: a, tape_displacement: L}
+  - params: {initial_state: regresar, mem_cache_value: null, tape_input: b}
+    output: {final_state: regresar, mem_cache_value: null, tape_output: b, tape_displacement: L}
+
+  # Regla 19: desde el blank izquierdo, comenzar otro recorrido sin cambios.
+  - params: {initial_state: regresar, mem_cache_value: null, tape_input: null}
+    output: {final_state: inicio, mem_cache_value: null, tape_output: null, tape_displacement: R}
+
+simulation_strings:
+  - babab  # Esperado: aabbb (símbolos alternados).
+  - bbaaa  # Esperado: aaabb (orden opuesto).
+  - aabbb  # Esperado: aabbb (ya ordenada).
+  - bbbbb  # Esperado: bbbbb (un solo tipo de símbolo).
