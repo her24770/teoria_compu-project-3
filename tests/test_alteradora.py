@@ -35,8 +35,8 @@ class TestAlteradora(unittest.TestCase):
         esperadas = {
             "babab": "aabbb",
             "bbaaa": "aaabb",
-            "aabbb": "aabbb",
-            "bbbbb": "bbbbb",
+            "abbaba": "aaabbb",
+            "bbbaab": "aabbbb",
         }
         self.assertEqual(len(self.machine.simulation_strings), 4)
         self.assertEqual(set(self.machine.simulation_strings), set(esperadas))
@@ -44,6 +44,8 @@ class TestAlteradora(unittest.TestCase):
             with self.subTest(entrada=entrada):
                 self.assertGreaterEqual(len(entrada), 5)
                 self.comprobar_ordenacion(entrada, esperadas[entrada])
+                # Cada cadena de la demostración debe modificar la cinta.
+                self.assertNotEqual(entrada, esperadas[entrada])
 
     def test_todas_las_cadenas_de_longitud_1_a_8(self):
         # 510 entradas: incluye a, b, ab, ba, cadenas homogéneas y ordenadas.

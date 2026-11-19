@@ -113,7 +113,7 @@ def main(argv=None) -> int:
         print(c.yellow("\nNo hay cadenas para simular (simulation_strings vacío)."))
         return 0
 
-    sim = Simulator(tm, max_steps=args.max_pasos)
+    sim = Simulator(tm, max_steps=args.max_pasos, blank=blank)
     results = [sim.run(s) for s in strings]
     for res in results:
         print_result(res, c, blank, args.quiet)

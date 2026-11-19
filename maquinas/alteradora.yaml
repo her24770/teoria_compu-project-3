@@ -75,5 +75,5 @@ delta:
 simulation_strings:
   - babab  # Esperado: aabbb (símbolos alternados).
   - bbaaa  # Esperado: aaabb (orden opuesto).
-  - aabbb  # Esperado: aabbb (ya ordenada).
-  - bbbbb  # Esperado: bbbbb (un solo tipo de símbolo).
+  - abbaba  # Esperado: aaabbb (varias inversiones separadas).
+  - bbbaab  # Esperado: aabbbb (las a deben cruzar tres b).

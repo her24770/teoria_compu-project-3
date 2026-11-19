@@ -53,9 +53,11 @@ class SimulationResult:
 
 
 class Simulator:
-    def __init__(self, machine: TuringMachine, max_steps: int = DEFAULT_MAX_STEPS):
+    def __init__(self, machine: TuringMachine, max_steps: int = DEFAULT_MAX_STEPS,
+                 blank: str = "B"):
         self.machine = machine
         self.max_steps = max_steps
+        self.blank = blank  # cómo se muestra el blank en los mensajes
 
     def _id(self, step: int, state: str, cache: Symbol, tape: Tape,
             transition: Optional[Transition] = None) -> InstantaneousDescription:
@@ -69,6 +71,7 @@ class Simulator:
         if invalid:
             return SimulationResult(
                 input_string, False, HALT_INVALID_INPUT,
+                final_tape=list(input_string),
                 message=f"Símbolos fuera del alfabeto: {', '.join(invalid)}",
             )
 
@@ -95,9 +98,10 @@ class Simulator:
             step += 1
             ids.append(self._id(step, state, cache, tape, t))
 
+        b = lambda s: self.blank if s is BLANK else s
         messages = {
             HALT_FINAL: f"Se alcanzó el estado final '{state}'.",
-            HALT_NO_TRANSITION: f"No hay transición para δ([{state}, {cache or 'B'}], {tape.read() or 'B'}).",
+            HALT_NO_TRANSITION: f"No hay transición para δ([{state}, {b(cache)}], {b(tape.read())}).",
             HALT_MAX_STEPS: f"Se alcanzó el límite de {self.max_steps} pasos (posible ciclo infinito).",
         }
         return SimulationResult(input_string, accepted, reason, ids, tape.content(), messages[reason])
