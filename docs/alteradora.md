@@ -168,3 +168,29 @@ Tercer recorrido:  aabbb -> aabbb (sin cambios: acepta)
 
 Este resumen omite los pasos de regreso y las escrituras intermedias; las
 descripciones instantáneas del simulador mostrarán cada paso individual.
+
+## Pruebas automatizadas
+
+Desde la raíz del repositorio, ejecutar las pruebas de la alteradora con:
+
+```powershell
+python -X utf8 -m unittest discover -s tests -p test_alteradora.py -v
+```
+
+Las pruebas cargan `maquinas/alteradora.yaml` mediante el parser real y usan
+el simulador del proyecto. Verifican las cuatro entradas de demostración,
+las 510 cadenas no vacías sobre `{a, b}` de longitud 1 a 8 y cinco entradas
+de longitud 24 (orden opuesto, alternada, ordenada y de un solo símbolo).
+Para cada entrada válida se comprueba la aceptación, el orden de la salida,
+la conservación de la longitud y de las cantidades, y que la cinta final
+no quede vacía. También se comprueba el rechazo de la cadena vacía y de
+entradas con símbolos ajenos al alfabeto.
+
+Estas comprobaciones cubren los casos indicados; la justificación general
+de terminación y ordenación está en la sección «Por qué funciona».
+
+Para ejecutar todas las pruebas del proyecto:
+
+```powershell
+python -X utf8 -m unittest discover -s tests -v
+```
