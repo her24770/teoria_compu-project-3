@@ -1,0 +1,166 @@
+---
+# Reconoce L = { ww | w pertenece a {a,b}+ }.
+#
+# Fase 1: marca extremos por parejas. A/B conservan un a/b de la primera
+# mitad; C/D conservan un a/b de la segunda mitad. Si queda un simbolo solo,
+# no existe una transicion aplicable y la longitud impar se rechaza.
+#
+# Fase 2: toma los A/B de izquierda a derecha, guarda a/b en la cache y los
+# compara con los C/D de izquierda a derecha. X y Z marcan elementos ya
+# comparados. Cualquier desigualdad se rechaza por falta de transicion.
+q_states:
+  q_list:
+    - buscar_izquierda
+    - ir_al_final
+    - buscar_derecha
+    - volver_a_marcar
+    - preparar_comparacion
+    - tomar_izquierda
+    - ir_a_segunda
+    - volver_a_comparar
+    - verificar_final
+    - aceptar
+  initial: buscar_izquierda
+  final: aceptar
+
+alphabet: [a, b]
+tape_alphabet: [a, b, A, B, C, D, X, Z, null]
+
+delta:
+  # -----------------------------------------------------------------------
+  # FASE 1: encontrar la mitad marcando el primer y el ultimo simbolo libre.
+  # A = a izquierda, B = b izquierda, C = a derecha, D = b derecha.
+  # -----------------------------------------------------------------------
+
+  # Saltar la parte izquierda que ya fue marcada.
+  - params: {initial_state: buscar_izquierda, mem_cache_value: null, tape_input: A}
+    output: {final_state: buscar_izquierda, mem_cache_value: null, tape_output: A, tape_displacement: R}
+  - params: {initial_state: buscar_izquierda, mem_cache_value: null, tape_input: B}
+    output: {final_state: buscar_izquierda, mem_cache_value: null, tape_output: B, tape_displacement: R}
+
+  # Marcar el primer simbolo libre como miembro de la primera mitad.
+  - params: {initial_state: buscar_izquierda, mem_cache_value: null, tape_input: a}
+    output: {final_state: ir_al_final, mem_cache_value: null, tape_output: A, tape_displacement: R}
+  - params: {initial_state: buscar_izquierda, mem_cache_value: null, tape_input: b}
+    output: {final_state: ir_al_final, mem_cache_value: null, tape_output: B, tape_displacement: R}
+
+  # Encontrar C/D significa que ya no quedan simbolos libres: la longitud es
+  # par y puede comenzar la comparacion. Primero se vuelve al blank izquierdo.
+  - params: {initial_state: buscar_izquierda, mem_cache_value: null, tape_input: C}
+    output: {final_state: preparar_comparacion, mem_cache_value: null, tape_output: C, tape_displacement: L}
+  - params: {initial_state: buscar_izquierda, mem_cache_value: null, tape_input: D}
+    output: {final_state: preparar_comparacion, mem_cache_value: null, tape_output: D, tape_displacement: L}
+
+  # Ir hasta el blank derecho, atravesando simbolos libres y marcas derechas.
+  - params: {initial_state: ir_al_final, mem_cache_value: null, tape_input: a}
+    output: {final_state: ir_al_final, mem_cache_value: null, tape_output: a, tape_displacement: R}
+  - params: {initial_state: ir_al_final, mem_cache_value: null, tape_input: b}
+    output: {final_state: ir_al_final, mem_cache_value: null, tape_output: b, tape_displacement: R}
+  - params: {initial_state: ir_al_final, mem_cache_value: null, tape_input: C}
+    output: {final_state: ir_al_final, mem_cache_value: null, tape_output: C, tape_displacement: R}
+  - params: {initial_state: ir_al_final, mem_cache_value: null, tape_input: D}
+    output: {final_state: ir_al_final, mem_cache_value: null, tape_output: D, tape_displacement: R}
+  - params: {initial_state: ir_al_final, mem_cache_value: null, tape_input: null}
+    output: {final_state: buscar_derecha, mem_cache_value: null, tape_output: null, tape_displacement: L}
+
+  # Saltar marcas derechas y marcar el ultimo simbolo que aun esta libre.
+  - params: {initial_state: buscar_derecha, mem_cache_value: null, tape_input: C}
+    output: {final_state: buscar_derecha, mem_cache_value: null, tape_output: C, tape_displacement: L}
+  - params: {initial_state: buscar_derecha, mem_cache_value: null, tape_input: D}
+    output: {final_state: buscar_derecha, mem_cache_value: null, tape_output: D, tape_displacement: L}
+  - params: {initial_state: buscar_derecha, mem_cache_value: null, tape_input: a}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: C, tape_displacement: L}
+  - params: {initial_state: buscar_derecha, mem_cache_value: null, tape_input: b}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: D, tape_displacement: L}
+  # No hay reglas para A/B: encontrarlas aqui indica longitud impar.
+
+  # Regresar al blank izquierdo para marcar la siguiente pareja de extremos.
+  - params: {initial_state: volver_a_marcar, mem_cache_value: null, tape_input: a}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: a, tape_displacement: L}
+  - params: {initial_state: volver_a_marcar, mem_cache_value: null, tape_input: b}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: b, tape_displacement: L}
+  - params: {initial_state: volver_a_marcar, mem_cache_value: null, tape_input: A}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: A, tape_displacement: L}
+  - params: {initial_state: volver_a_marcar, mem_cache_value: null, tape_input: B}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: B, tape_displacement: L}
+  - params: {initial_state: volver_a_marcar, mem_cache_value: null, tape_input: C}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: C, tape_displacement: L}
+  - params: {initial_state: volver_a_marcar, mem_cache_value: null, tape_input: D}
+    output: {final_state: volver_a_marcar, mem_cache_value: null, tape_output: D, tape_displacement: L}
+  - params: {initial_state: volver_a_marcar, mem_cache_value: null, tape_input: null}
+    output: {final_state: buscar_izquierda, mem_cache_value: null, tape_output: null, tape_displacement: R}
+
+  # Cuando ya se hallo la mitad, regresar al inicio para comparar.
+  - params: {initial_state: preparar_comparacion, mem_cache_value: null, tape_input: A}
+    output: {final_state: preparar_comparacion, mem_cache_value: null, tape_output: A, tape_displacement: L}
+  - params: {initial_state: preparar_comparacion, mem_cache_value: null, tape_input: B}
+    output: {final_state: preparar_comparacion, mem_cache_value: null, tape_output: B, tape_displacement: L}
+  - params: {initial_state: preparar_comparacion, mem_cache_value: null, tape_input: null}
+    output: {final_state: tomar_izquierda, mem_cache_value: null, tape_output: null, tape_displacement: R}
+
+  # -----------------------------------------------------------------------
+  # FASE 2: comparar ambas mitades de izquierda a derecha usando la cache.
+  # X = simbolo izquierdo comparado; Z = simbolo derecho comparado.
+  # -----------------------------------------------------------------------
+
+  # Elegir el primer simbolo no comparado de la primera mitad.
+  - params: {initial_state: tomar_izquierda, mem_cache_value: null, tape_input: X}
+    output: {final_state: tomar_izquierda, mem_cache_value: null, tape_output: X, tape_displacement: R}
+  - params: {initial_state: tomar_izquierda, mem_cache_value: null, tape_input: A}
+    output: {final_state: ir_a_segunda, mem_cache_value: a, tape_output: X, tape_displacement: R}
+  - params: {initial_state: tomar_izquierda, mem_cache_value: null, tape_input: B}
+    output: {final_state: ir_a_segunda, mem_cache_value: b, tape_output: X, tape_displacement: R}
+
+  # Si solo quedan Z, todas las parejas fueron iguales; verificar hasta el fin.
+  - params: {initial_state: tomar_izquierda, mem_cache_value: null, tape_input: Z}
+    output: {final_state: verificar_final, mem_cache_value: null, tape_output: Z, tape_displacement: R}
+
+  # Con a en cache, cruzar la primera mitad y los Z ya comparados.
+  - params: {initial_state: ir_a_segunda, mem_cache_value: a, tape_input: A}
+    output: {final_state: ir_a_segunda, mem_cache_value: a, tape_output: A, tape_displacement: R}
+  - params: {initial_state: ir_a_segunda, mem_cache_value: a, tape_input: B}
+    output: {final_state: ir_a_segunda, mem_cache_value: a, tape_output: B, tape_displacement: R}
+  - params: {initial_state: ir_a_segunda, mem_cache_value: a, tape_input: Z}
+    output: {final_state: ir_a_segunda, mem_cache_value: a, tape_output: Z, tape_displacement: R}
+  - params: {initial_state: ir_a_segunda, mem_cache_value: a, tape_input: C}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: Z, tape_displacement: L}
+  # No hay regla (cache a, simbolo D): a != b.
+
+  # Con b en cache, cruzar la primera mitad y los Z ya comparados.
+  - params: {initial_state: ir_a_segunda, mem_cache_value: b, tape_input: A}
+    output: {final_state: ir_a_segunda, mem_cache_value: b, tape_output: A, tape_displacement: R}
+  - params: {initial_state: ir_a_segunda, mem_cache_value: b, tape_input: B}
+    output: {final_state: ir_a_segunda, mem_cache_value: b, tape_output: B, tape_displacement: R}
+  - params: {initial_state: ir_a_segunda, mem_cache_value: b, tape_input: Z}
+    output: {final_state: ir_a_segunda, mem_cache_value: b, tape_output: Z, tape_displacement: R}
+  - params: {initial_state: ir_a_segunda, mem_cache_value: b, tape_input: D}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: Z, tape_displacement: L}
+  # No hay regla (cache b, simbolo C): b != a.
+
+  # Regresar al blank izquierdo despues de comparar una pareja.
+  - params: {initial_state: volver_a_comparar, mem_cache_value: null, tape_input: X}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: X, tape_displacement: L}
+  - params: {initial_state: volver_a_comparar, mem_cache_value: null, tape_input: A}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: A, tape_displacement: L}
+  - params: {initial_state: volver_a_comparar, mem_cache_value: null, tape_input: B}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: B, tape_displacement: L}
+  - params: {initial_state: volver_a_comparar, mem_cache_value: null, tape_input: Z}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: Z, tape_displacement: L}
+  - params: {initial_state: volver_a_comparar, mem_cache_value: null, tape_input: C}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: C, tape_displacement: L}
+  - params: {initial_state: volver_a_comparar, mem_cache_value: null, tape_input: D}
+    output: {final_state: volver_a_comparar, mem_cache_value: null, tape_output: D, tape_displacement: L}
+  - params: {initial_state: volver_a_comparar, mem_cache_value: null, tape_input: null}
+    output: {final_state: tomar_izquierda, mem_cache_value: null, tape_output: null, tape_displacement: R}
+
+  # Aceptar unicamente si toda la segunda mitad tambien esta procesada.
+  - params: {initial_state: verificar_final, mem_cache_value: null, tape_input: Z}
+    output: {final_state: verificar_final, mem_cache_value: null, tape_output: Z, tape_displacement: R}
+  - params: {initial_state: verificar_final, mem_cache_value: null, tape_input: null}
+    output: {final_state: aceptar, mem_cache_value: null, tape_output: null, tape_displacement: S}
+
+simulation_strings:
+  - abbabb  # Aceptada: abb + abb.
+  - abaaba  # Aceptada: aba + aba.
+  - abbaba  # Rechazada: abb != aba.
+  - aabbab  # Rechazada: aab != bab.
